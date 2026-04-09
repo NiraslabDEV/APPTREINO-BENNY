@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # Google
-    GOOGLE_CLIENT_ID: str
+    # Google (opcional — só necessário para login com Google)
+    GOOGLE_CLIENT_ID: str = ""
 
     # App
     APP_ENV: str = "development"
