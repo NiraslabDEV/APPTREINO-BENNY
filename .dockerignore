@@ -1,0 +1,15 @@
+flutter/
+.git/
+.github/
+.venv/
+.vscode/
+.claude/
+mcp/
+*.md
+docker-compose.yml
+stitch_mcp_requests.py
+backend/.env
+backend/.env.*
+backend/__pycache__/
+backend/.pytest_cache/
+backend/tests/
