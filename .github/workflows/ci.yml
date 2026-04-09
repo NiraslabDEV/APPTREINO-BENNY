@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────
+  # Backend — testes + scanner de segurança
+  # ─────────────────────────────────────────
+  backend:
+    name: Backend (FastAPI)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: kinetic
+          POSTGRES_PASSWORD: kinetic
+          POSTGRES_DB: kinetic_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Verificar secrets hardcoded
+        run: |
+          if grep -rn "SECRET_KEY\s*=\s*['\"][^'\"]\{8,\}" app/; then
+            echo "ERRO: secret hardcoded detectado!"
+            exit 1
+          fi
+
+      - name: Scanner de vulnerabilidades (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt --ignore-vuln PYSEC-2023-62 || true
+
+      - name: Rodar testes
+        env:
+          DATABASE_TEST_URL: postgresql+asyncpg://kinetic:kinetic@localhost:5432/kinetic_test
+          DATABASE_URL: postgresql+asyncpg://kinetic:kinetic@localhost:5432/kinetic_test
+          SECRET_KEY: ci-test-secret-key-not-for-production
+          GOOGLE_CLIENT_ID: test-client-id.apps.googleusercontent.com
+          APP_ENV: test
+        run: pytest -v --cov=app --cov-report=xml
+
+      - name: Upload cobertura
+        uses: codecov/codecov-action@v4
+        with:
+          file: backend/coverage.xml
+          flags: backend
+        continue-on-error: true
+
+  # ─────────────────────────────────────────
+  # Flutter — analyze + testes
+  # ─────────────────────────────────────────
+  flutter:
+    name: Flutter
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: flutter
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.2"
+          channel: stable
+          cache: true
+
+      - name: flutter pub get
+        run: flutter pub get
+
+      - name: flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: flutter test
+        run: flutter test --coverage
+
+      - name: Upload cobertura Flutter
+        uses: codecov/codecov-action@v4
+        with:
+          file: flutter/coverage/lcov.info
+          flags: flutter
+        continue-on-error: true
