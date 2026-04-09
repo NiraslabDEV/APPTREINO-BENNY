@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../constants/app_constants.dart';
+import '../di/injection.dart';
 
 // Screens — serão criadas nas features
 import '../../features/auth/presentation/screens/login_screen.dart';
