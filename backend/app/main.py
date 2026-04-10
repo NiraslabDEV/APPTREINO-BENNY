@@ -7,7 +7,7 @@ from slowapi.errors import RateLimitExceeded
 import structlog
 
 from .core.config import settings
-from .routers import auth, dashboard, workouts, sessions, students
+from .routers import auth, dashboard, workouts, sessions, students, exercises
 
 log = structlog.get_logger()
 
@@ -66,6 +66,8 @@ app.include_router(dashboard.router)
 app.include_router(workouts.router)
 app.include_router(sessions.router)
 app.include_router(students.router)
+app.include_router(exercises.router)
+
 
 
 # Rota de aluno — me
