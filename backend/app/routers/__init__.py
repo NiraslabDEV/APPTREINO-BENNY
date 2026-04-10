@@ -1,1 +1,1 @@
-from . import auth, dashboard, workouts, sessions, students
+from . import auth, dashboard, workouts, sessions, students, exercises

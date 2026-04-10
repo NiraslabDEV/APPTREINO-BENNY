@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Query
 from sqlalchemy import select, or_, func
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from ..core.deps import TrainerUser, DB
 from ..models.workout import Exercise
@@ -14,6 +14,7 @@ class ExerciseCreate(BaseModel):
     gif_url: Optional[str] = Field(None, max_length=512)
 
 class ExerciseOut(ExerciseCreate):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     is_custom: bool
     trainer_id: Optional[str]
