@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 abstract class AuthRemoteDatasource {
   Future<AuthResponseModel> loginWithEmail(String email, String password);
   Future<AuthResponseModel> loginWithGoogle(String googleToken);
+  Future<AuthResponseModel> register(String email, String password, String name, String role);
   Future<void> logout();
 }
 
@@ -31,6 +32,22 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     final response = await _dio.post(
       '/auth/email',
       data: {'email': email.trim(), 'password': password},
+    );
+    return AuthResponseModel.fromJson(
+        response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<AuthResponseModel> register(
+      String email, String password, String name, String role) async {
+    final response = await _dio.post(
+      '/auth/register',
+      data: {
+        'email': email.trim(),
+        'password': password,
+        'name': name.trim(),
+        'role': role,
+      },
     );
     return AuthResponseModel.fromJson(
         response.data as Map<String, dynamic>);

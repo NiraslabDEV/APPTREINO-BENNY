@@ -30,6 +30,13 @@ class EmailLoginRequest(BaseModel):
     password: str = Field(min_length=8, max_length=128)
 
 
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    name: str = Field(min_length=2, max_length=100)
+    role: str = Field(pattern="^(personal_trainer|aluno)$", default="aluno")
+
+
 class GoogleLoginRequest(BaseModel):
     token: str = Field(max_length=4096)
 
@@ -69,6 +76,34 @@ def _generic_error():
 
 
 # --- Endpoints ---
+@router.post("/register", response_model=AuthResponse, status_code=201)
+@limiter.limit("3/minute")
+async def register(
+    request: Request,
+    body: RegisterRequest,
+    db: DB,
+):
+    """Cria conta com email + senha. Mensagem genérica se email já existe."""
+    result = await db.execute(
+        select(User).where(User.email == body.email.lower())
+    )
+    if result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Não foi possível criar a conta.",
+        )
+
+    user = User(
+        email=body.email.lower(),
+        hashed_password=hash_password(body.password),
+        name=body.name.strip(),
+        role=body.role,
+    )
+    db.add(user)
+    await db.flush()
+    return _build_response(user)
+
+
 @router.post("/email", response_model=AuthResponse, status_code=200)
 @limiter.limit("5/minute")
 async def login_email(

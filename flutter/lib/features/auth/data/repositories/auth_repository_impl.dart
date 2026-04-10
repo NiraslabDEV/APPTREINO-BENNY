@@ -10,6 +10,8 @@ abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> loginWithEmail(
       String email, String password);
   Future<Either<Failure, UserEntity>> loginWithGoogle(String googleToken);
+  Future<Either<Failure, UserEntity>> register(
+      String email, String password, String name, String role);
   Future<Either<Failure, void>> logout();
 }
 
@@ -28,6 +30,26 @@ class AuthRepositoryImpl implements AuthRepository {
           response.user.role, response.user.id);
       return Right(response.user.toEntity());
     } on DioException catch (e) {
+      return Left(_mapDioError(e));
+    } catch (_) {
+      return const Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> register(
+      String email, String password, String name, String role) async {
+    try {
+      final response =
+          await _datasource.register(email, password, name, role);
+      await _persistSession(response.accessToken, response.refreshToken,
+          response.user.role, response.user.id);
+      return Right(response.user.toEntity());
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        return const Left(
+            UnauthorizedFailure('Não foi possível criar a conta.'));
+      }
       return Left(_mapDioError(e));
     } catch (_) {
       return const Left(ServerFailure());

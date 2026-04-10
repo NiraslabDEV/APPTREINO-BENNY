@@ -167,6 +167,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           label: const Text('Continuar com Google'),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      TextButton(
+                        onPressed: () => context.go(AppRouter.register),
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Não tem conta? ',
+                            style: TextStyle(
+                                color: KineticColors.onSurfaceVariant),
+                            children: [
+                              TextSpan(
+                                text: 'Criar conta',
+                                style: TextStyle(
+                                  color: KineticColors.primaryContainer,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

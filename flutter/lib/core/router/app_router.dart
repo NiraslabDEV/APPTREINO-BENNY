@@ -7,6 +7,7 @@ import '../di/injection.dart';
 
 // Screens — serão criadas nas features
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/trainer/dashboard/presentation/screens/trainer_dashboard_screen.dart';
 import '../../features/trainer/students/presentation/screens/students_screen.dart';
 import '../../features/trainer/students/presentation/screens/student_profile_screen.dart';
@@ -17,6 +18,7 @@ import '../../features/aluno/progress/presentation/screens/progress_screen.dart'
 
 class AppRouter {
   static const String login = '/login';
+  static const String register = '/register';
 
   // Trainer routes
   static const String trainerDashboard = '/trainer/dashboard';
@@ -37,7 +39,8 @@ class AppRouter {
         final token = await storage.read(key: AppConstants.accessTokenKey);
         final isLoggingIn = state.matchedLocation == login;
 
-        if (token == null && !isLoggingIn) return login;
+        final isRegistering = state.matchedLocation == register;
+        if (token == null && !isLoggingIn && !isRegistering) return login;
         if (token != null && isLoggingIn) {
           final role = await storage.read(key: AppConstants.userRoleKey);
           return role == AppConstants.roleTrainer
@@ -50,6 +53,10 @@ class AppRouter {
         GoRoute(
           path: login,
           builder: (_, __) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: register,
+          builder: (_, __) => const RegisterScreen(),
         ),
 
         // Trainer shell com bottom nav

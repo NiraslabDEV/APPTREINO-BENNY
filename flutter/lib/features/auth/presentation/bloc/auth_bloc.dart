@@ -5,6 +5,7 @@ import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/utils/either.dart';
 
 // --- Events ---
 abstract class AuthEvent extends Equatable {
@@ -19,6 +20,21 @@ class LoginWithEmailRequested extends AuthEvent {
   const LoginWithEmailRequested({required this.email, required this.password});
   @override
   List<Object> get props => [email, password];
+}
+
+class RegisterRequested extends AuthEvent {
+  final String email;
+  final String password;
+  final String name;
+  final String role;
+  const RegisterRequested({
+    required this.email,
+    required this.password,
+    required this.name,
+    this.role = 'aluno',
+  });
+  @override
+  List<Object> get props => [email, password, name, role];
 }
 
 class LoginWithGoogleRequested extends AuthEvent {}
@@ -68,8 +84,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             ),
         super(AuthInitial()) {
     on<LoginWithEmailRequested>(_onEmailLogin);
+    on<RegisterRequested>(_onRegister);
     on<LoginWithGoogleRequested>(_onGoogleLogin);
     on<LogoutRequested>(_onLogout);
+  }
+
+  Future<void> _onRegister(
+    RegisterRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final result = await _repository.register(
+        event.email, event.password, event.name, event.role);
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (user) => emit(AuthAuthenticated(user)),
+    );
   }
 
   Future<void> _onEmailLogin(
