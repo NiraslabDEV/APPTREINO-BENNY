@@ -119,54 +119,46 @@ Tabelas criadas via Alembic:
 
 ## 3. O QUE FALTA FAZER (PENDENTE)
 
-### 🔴 URGENTE (para o app funcionar 100%)
+### ✅ URGENTE (concluído)
 
-**1. Push do endpoint de registro para Railway**
-```bash
-cd c:\Users\Gabriel\Desktop\APPTREINO
-git add backend/app/routers/auth.py
-git add flutter/
-git commit -m "feat: add user registration endpoint + register screen"
-git push origin main
-```
-Sem isso, o botão "Criar conta" vai dar erro 404 porque o Railway ainda não tem o endpoint `/auth/register`.
+**1. Endpoint de registro** ✅ (já estava pronto, testado com curl)
 
-**2. Configurar ALLOWED_ORIGINS no Railway**
-No painel Railway → variáveis de ambiente, adicionar:
-```
-ALLOWED_ORIGINS=http://localhost:8888,http://localhost:5000,http://localhost:3000
-```
-Sem isso, o CORS pode bloquear requisições do Flutter web.
+**2. ALLOWED_ORIGINS** ✅ (usuário confirmou)
 
-**3. Configurar GOOGLE_CLIENT_ID (para login com Google funcionar)**
-- Ir no Google Cloud Console → APIs & Services → Credentials
-- Criar OAuth 2.0 Client ID (tipo: Web Application)
-- Copiar o Client ID
-- Adicionar no Railway: `GOOGLE_CLIENT_ID=seu_client_id_aqui`
-- Também adicionar no `flutter/.env`:
-```
-GOOGLE_CLIENT_ID=seu_client_id_aqui
-```
+**3. GOOGLE_CLIENT_ID** ✅ (usuário confirmou)
 
-### 🟡 IMPORTANTE (melhorias para usar de verdade)
+### 🟡 IMPORTANTE
 
-**4. Seed de exercícios**
-O banco está vazio — sem exercícios cadastrados, o Builder não tem nada para mostrar. Precisamos de um script seed com exercícios comuns:
-- Bench Press, Squat, Deadlift, Shoulder Press, Pull-up, etc.
-- Com muscle_group, equipment, gif_url
+**4. Seed de exercícios** ✅
 
-**5. Testar em emulador Android**
-O app foi feito para mobile. Para testar:
-- Instalar Android Studio
-- Criar emulador (Pixel 7, API 34)
-- Rodar: `flutter run -d emulator-5554`
+Adicionei endpoints CRUD para trainers: GET /exercises (lista), POST /exercises (criar)
 
-**6. Build APK para instalar no celular**
-```bash
-cd flutter
-flutter build apk --release
-```
-O APK fica em `flutter/build/app/outputs/flutter-apk/app-release.apk`
+Push para Railway (deploy em progresso)
+
+Criei `seed_exercises.py` com 20 exercícios focados em mulheres/senhoras para crescer quadril e pernas fortes:
+- Hip Thrust (Glutes, Barbell)
+- Glute Bridge (Glutes, Bodyweight)
+- Bulgarian Split Squat (Glutes, Dumbbell)
+- Romanian Deadlift (Hamstrings, Barbell)
+- Back Squat (Quads, Barbell)
+- Walking Lunges (Legs, Dumbbell)
+- Leg Press (Legs, Machine)
+- Good Mornings, Step Ups, Calf Raise, etc. (20 total)
+
+Rode `python seed_exercises.py` após deploy confirmar /exercises funcionando.
+
+**Perfis de treino criados:**
+
+| Nome | Role | ID | Email |
+|------|------|----|-------|
+| Benny | personal_trainer | eac7e492-bd1b-4f9b-9410-acfe7e1fdcf9 | benny@kinetic.com |
+| Ana Silva | aluno | 93abbdbe-3c63-41f6-b7bf-9b14d46304c7 | ana@aluna.com |
+| Maria Santos | aluno | b940b8dd-d4c0-4efa-a159-ada090ffc611 | maria@aluna.com |
+| Joana Oliveira | aluno | abd2042e-1c0a-422f-892f-453ce2ff1b6b | joana@aluna.com |
+
+**5. Testar Android** ⏳ (usuário disse ainda não)
+
+**6. Build APK** 🔄 em progresso (`flutter/build/app/outputs/flutter-apk/app-release.apk`)
 
 ### 🟢 FUTURO (Fase 2)
 
